@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.wjz.user.mapper.UserMapper">
+    
+    <resultMap id="BaseResultMap" type="com.wjz.user.entity.User">
+        <id column="id" property="id" />
+        <result column="username" property="username" />
+        <result column="password" property="password" />
+        <result column="create_time" property="createTime" />
+    </resultMap>
+
+    <select id="findByUserName" resultMap="BaseResultMap">
+        select id, username, password, create_time
+        from user
+        where username = #{username}
+    </select>
+
+    <insert id="registerUser" useGeneratedKeys="true" keyProperty="id">
+        insert into user(username, password, create_time)
+        values (#{username}, #{password}, now())
+    </insert>
+</mapper>
