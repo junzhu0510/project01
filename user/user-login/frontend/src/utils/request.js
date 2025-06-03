@@ -1,15 +1,18 @@
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
-import router from '../router'
 
-const service = axios.create({
+const request = axios.create({
   baseURL: '/api',
-  timeout: 5000
+  timeout: 5000,
+  headers: {
+    'Content-Type': 'application/json'
+  }
 })
 
 // 请求拦截器
-service.interceptors.request.use(
+request.interceptors.request.use(
   config => {
+    console.log('发送请求:', config.url, '请求方法:', config.method, '请求数据:', config.data)
     const token = localStorage.getItem('token')
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`
@@ -23,33 +26,26 @@ service.interceptors.request.use(
 )
 
 // 响应拦截器
-service.interceptors.response.use(
+request.interceptors.response.use(
   response => {
     const res = response.data
-    
-    if (res.code !== 200) {
-      ElMessage.error(res.message || '请求失败')
-      
-      // token 失效或未登录
-      if (res.code === 401) {
-        localStorage.removeItem('token')
-        localStorage.removeItem('username')
-        router.push('/login')
-      }
-      
-      return Promise.reject(new Error(res.message || '请求失败'))
-    }
-    
+    console.log('响应数据：', res)
     return res
   },
   error => {
     console.error('响应错误：', error)
+    console.error('错误详情：', {
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data,
+      config: error.config
+    })
     
-    // 处理 401 错误
-    if (error.response && error.response.status === 401) {
+    // 处理401未授权的情况
+    if (error.response?.status === 401) {
       localStorage.removeItem('token')
       localStorage.removeItem('username')
-      router.push('/login')
+      window.location.href = '/login'
     }
     
     ElMessage.error(error.response?.data?.message || '请求失败')
@@ -57,4 +53,4 @@ service.interceptors.response.use(
   }
 )
 
-export default service
+export default request

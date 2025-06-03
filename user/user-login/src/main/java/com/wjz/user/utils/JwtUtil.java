@@ -17,12 +17,12 @@ public class JwtUtil {
 
     @Value("${jwt.secret:your-secret-key}")
     private String secret;
-    
+
     @Value("${jwt.expiration:86400000}")
     private Long expiration; // 默认24小时
 
     private Key getSigningKey() {
-        return Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+        return Jwts.SIG.HS256.key().build();
     }
 
     /**
@@ -33,7 +33,7 @@ public class JwtUtil {
     public String generateToken(String username) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("username", username);
-        
+
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expiration);
 
@@ -90,7 +90,7 @@ public class JwtUtil {
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
-            
+
             return claims.getExpiration().before(new Date());
         } catch (Exception e) {
             return true;

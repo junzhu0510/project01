@@ -15,7 +15,7 @@
         </el-form-item>
         
         <el-form-item label="确认密码" prop="confirmPassword">
-          <el-input v-model="registerForm.confirmPassword" type="password" placeholder="请确认密码"></el-input>
+          <el-input v-model="registerForm.confirmPassword" type="password" placeholder="请再次输入密码" @keyup.enter="handleRegister"></el-input>
         </el-form-item>
         
         <el-form-item>
@@ -30,8 +30,8 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
 import { ElMessage } from 'element-plus'
+import request from '@/utils/request'
 
 const router = useRouter()
 const registerFormRef = ref(null)
@@ -56,14 +56,14 @@ const validatePass2 = (rule, value, callback) => {
 const rules = {
   username: [
     { required: true, message: '请输入用户名', trigger: 'blur' },
-    { min: 3, max: 20, message: '长度在 3 到 20 个字符', trigger: 'blur' }
+    { min: 5, max: 16, message: '长度在 5 到 16 个字符', trigger: 'blur' }
   ],
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
-    { min: 6, max: 20, message: '长度在 6 到 20 个字符', trigger: 'blur' }
+    { min: 5, max: 16, message: '长度在 5 到 16 个字符', trigger: 'blur' }
   ],
   confirmPassword: [
-    { required: true, message: '请确认密码', trigger: 'blur' },
+    { required: true, message: '请再次输入密码', trigger: 'blur' },
     { validator: validatePass2, trigger: 'blur' }
   ]
 }
@@ -75,10 +75,14 @@ const handleRegister = async () => {
     if (valid) {
       loading.value = true
       try {
-        const { confirmPassword, ...registerData } = registerForm
-        const response = await axios.post('/api/user/register', registerData)
+        const data = {
+          username: registerForm.username,
+          password: registerForm.password
+        }
         
-        ElMessage.success('注册成功')
+        await request.post('/user/register-json', data)
+        
+        ElMessage.success('注册成功，请登录')
         router.push('/login')
       } catch (error) {
         ElMessage.error(error.response?.data?.message || '注册失败')

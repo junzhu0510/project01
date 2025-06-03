@@ -11,7 +11,7 @@
         </el-form-item>
         
         <el-form-item label="密码" prop="password">
-          <el-input v-model="loginForm.password" type="password" placeholder="请输入密码"></el-input>
+          <el-input v-model="loginForm.password" type="password" placeholder="请输入密码" @keyup.enter="handleLogin"></el-input>
         </el-form-item>
         
         <el-form-item>
@@ -26,8 +26,8 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
 import { ElMessage } from 'element-plus'
+import request from '@/utils/request'
 
 const router = useRouter()
 const loginFormRef = ref(null)
@@ -41,11 +41,11 @@ const loginForm = reactive({
 const rules = {
   username: [
     { required: true, message: '请输入用户名', trigger: 'blur' },
-    { min: 3, max: 20, message: '长度在 3 到 20 个字符', trigger: 'blur' }
+    { min: 5, max: 16, message: '长度在 5 到 16 个字符', trigger: 'blur' }
   ],
   password: [
     { required: true, message: '请输入密码', trigger: 'blur' },
-    { min: 6, max: 20, message: '长度在 6 到 20 个字符', trigger: 'blur' }
+    { min: 5, max: 16, message: '长度在 5 到 16 个字符', trigger: 'blur' }
   ]
 }
 
@@ -56,15 +56,29 @@ const handleLogin = async () => {
     if (valid) {
       loading.value = true
       try {
-        const response = await axios.post('/api/user/login', loginForm)
-        const { token, username } = response.data.data
+        console.log('尝试登录，用户名:', loginForm.username, '密码:', loginForm.password)
         
-        localStorage.setItem('token', token)
-        localStorage.setItem('username', username)
+        // 使用JSON格式发送请求
+        const data = {
+          username: loginForm.username,
+          password: loginForm.password
+        }
         
-        ElMessage.success('登录成功')
-        router.push('/lottery')
+        console.log('发送登录请求，参数:', data)
+        const response = await request.post('/user/login-json', data)
+        console.log('登录响应:', response)
+        
+        if (response.code === 0) {
+          localStorage.setItem('token', response.data)
+          localStorage.setItem('username', loginForm.username)
+          
+          ElMessage.success('登录成功')
+          router.push('/lottery')
+        } else {
+          ElMessage.error(response.message || '登录失败')
+        }
       } catch (error) {
+        console.error('登录错误：', error)
         ElMessage.error(error.response?.data?.message || '登录失败')
       } finally {
         loading.value = false

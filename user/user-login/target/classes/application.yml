@@ -4,6 +4,8 @@ spring:
   cloud:
     nacos:
       config:
+        import-check:
+          enabled: true
         server-addr: 127.0.0.1:8848
         namespace: user-login
         group: DEFAULT_GROUP
@@ -19,9 +21,23 @@ spring:
 
 server:
   port: 8000
-  
+
 mybatis-plus:
   mapper-locations: classpath:mapper/*.xml
   type-aliases-package: com.wjz.user.entity
   configuration:
     map-underscore-to-camel-case: true
+
+logging:
+  level:
+    root: INFO
+    com.wjz.user: DEBUG
+    org.springframework.web: DEBUG
+    org.mybatis: DEBUG
+    com.baomidou.mybatisplus: DEBUG
+    org.springframework.jdbc: DEBUG
+    org.springframework.transaction: DEBUG
+
+jwt:
+  secret: your-secret-key  # 虽然不再直接使用，但保留配置
+  expiration: 86400000     # 24小时

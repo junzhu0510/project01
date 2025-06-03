@@ -1,6 +1,11 @@
 com\wjz\user\mapper\UserMapper.class
-com\wjz\user\entity\User.class
 com\wjz\user\controller\UseLoginController.class
+com\wjz\user\utils\PasswordUtil.class
+com\wjz\user\config\CorsConfig.class
+com\wjz\user\config\WebConfig.class
+com\wjz\user\entity\User.class
 com\wjz\user\UserMainApplication.class
 com\wjz\user\entity\Result.class
+com\wjz\user\utils\JwtUtil.class
 com\wjz\user\service\UserServiceLogin.class
+com\wjz\user\service\impl\UserServiceLoginImpl.class
