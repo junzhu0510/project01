@@ -15,6 +15,7 @@ public class User {
     private String password;
     @Column("create_time")
     private LocalDateTime createTime;
+    private String token; // JWT令牌
     private Integer code;
     private String message;
     private Object data;

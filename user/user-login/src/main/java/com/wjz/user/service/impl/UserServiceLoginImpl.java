@@ -57,6 +57,13 @@ public class UserServiceLoginImpl implements UserServiceLogin {
 
         // 生成 token
         String token = jwtUtil.generateToken(username);
-        return User.success(token);
+        
+        // 创建包含用户信息的响应对象
+        User userInfo = new User();
+        userInfo.setId(user.getId());
+        userInfo.setUsername(username);
+        userInfo.setToken(token);
+        
+        return User.success(userInfo);
     }
 }

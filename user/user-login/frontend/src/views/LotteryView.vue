@@ -56,7 +56,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
+import request from '@/utils/request'
 import { ElMessage } from 'element-plus'
 
 const router = useRouter()
@@ -84,15 +84,44 @@ const startLottery = async () => {
   const totalTimes = 30 // 转动次数
   
   try {
+    // 获取用户信息
+    const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}')
+    const userId = userInfo.id
+    const username = userInfo.username
+    
+    if (!userId || !username) {
+      ElMessage.error('用户信息不存在，请重新登录')
+      isDrawing.value = false
+      return
+    }
+    
     // 发送抽奖请求
-    const response = await axios.post('/api/lottery/draw', {}, {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      }
+    const response = await request.post('/lottery/draw-json', {
+      userId: userId,
+      username: username
     })
     
-    const prizeId = response.data.data.prizeId
-    const prize = prizes.find(p => p.id === prizeId)
+    console.log('抽奖响应：', response)
+    
+    // 检查响应状态
+    if (response.code !== 200) {
+      ElMessage.error(response.message || '抽奖失败')
+      isDrawing.value = false
+      return
+    }
+    
+    const prizeId = response.prize ? response.prize.id : null
+    let prize
+    if (response.isWinner && prizeId) {
+      // 根据后端返回的奖品信息创建奖品对象
+      prize = {
+        id: prizeId,
+        name: response.prize.name || '未知奖品',
+        description: response.prize.description || response.prize.remark || '恭喜中奖！'
+      }
+    } else {
+      prize = prizes.find(p => p.name === '谢谢参与')
+    }
     
     // 模拟转盘效果
     timer = setInterval(() => {
@@ -102,7 +131,15 @@ const startLottery = async () => {
       // 最后一圈减速并停在中奖位置
       if (times >= totalTimes) {
         clearInterval(timer)
-        currentIndex.value = prizes.findIndex(p => p.id === prizeId)
+        // 根据是否中奖设置停止位置
+        if (response.isWinner && prizeId) {
+          // 中奖时随机选择一个非"谢谢参与"的位置
+          const winningIndexes = prizes.map((p, index) => p.name !== '谢谢参与' ? index : -1).filter(i => i !== -1)
+          currentIndex.value = winningIndexes[Math.floor(Math.random() * winningIndexes.length)]
+        } else {
+          // 未中奖时停在"谢谢参与"
+          currentIndex.value = prizes.findIndex(p => p.name === '谢谢参与')
+        }
         isDrawing.value = false
         chances.value--
         
@@ -112,8 +149,15 @@ const startLottery = async () => {
       }
     }, 100)
   } catch (error) {
+    console.error('抽奖请求失败：', error)
+    console.error('错误详情：', {
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data,
+      message: error.message
+    })
     isDrawing.value = false
-    ElMessage.error(error.response?.data?.message || '抽奖失败')
+    ElMessage.error(error.response?.data?.message || error.message || '请求失败')
   }
 }
 
@@ -129,13 +173,25 @@ const viewPrizeHistory = () => {
 // 获取用户剩余抽奖次数
 const getChances = async () => {
   try {
-    const response = await axios.get('/api/lottery/chances', {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      }
-    })
-    chances.value = response.data.data.chances
+    const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}')
+    const userId = userInfo.id
+    if (!userId) {
+      ElMessage.error('用户信息不存在，请重新登录')
+      return
+    }
+    const response = await request.get(`/lottery/chances?userId=${userId}`)
+    console.log('获取抽奖次数响应：', response)
+    
+    // 检查响应格式，适配不同的返回结构
+    if (response.data && response.data.remainingChances !== undefined) {
+      chances.value = response.data.remainingChances
+    } else if (response.remainingChances !== undefined) {
+      chances.value = response.remainingChances
+    } else {
+      chances.value = 0
+    }
   } catch (error) {
+    console.error('获取抽奖次数失败：', error)
     ElMessage.error('获取抽奖次数失败')
   }
 }

@@ -56,8 +56,9 @@ public class UseLoginController {
         
         // 验证参数
         if (username == null || password == null || 
-            !username.matches("^\\S{5,16}$") || !password.matches("^\\S{5,16}$")) {
-            return User.error("用户名和密码必须是5-16位非空字符");
+            username.trim().length() < 5 || username.trim().length() > 16 ||
+            password.trim().length() < 5 || password.trim().length() > 16) {
+            return User.error("用户名和密码必须是5-16位字符");
         }
         
         logger.debug("JSON注册请求: username={}", username);
@@ -80,8 +81,9 @@ public class UseLoginController {
         
         // 验证参数
         if (username == null || password == null || 
-            !username.matches("^\\S{5,16}$") || !password.matches("^\\S{5,16}$")) {
-            return User.error("用户名和密码必须是5-16位非空字符");
+            username.trim().length() < 5 || username.trim().length() > 16 ||
+            password.trim().length() < 5 || password.trim().length() > 16) {
+            return User.error("用户名和密码必须是5-16位字符");
         }
         
         logger.debug("JSON登录请求: username={}", username);

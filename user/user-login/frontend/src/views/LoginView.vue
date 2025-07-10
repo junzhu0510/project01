@@ -69,11 +69,20 @@ const handleLogin = async () => {
         console.log('登录响应:', response)
         
         if (response.code === 0) {
-          localStorage.setItem('token', response.data)
-          localStorage.setItem('username', loginForm.username)
-          
-          ElMessage.success('登录成功')
-          router.push('/lottery')
+          // 后端返回的用户信息在data字段中
+          const userInfo = response.data
+          if (userInfo && userInfo.token) {
+            localStorage.setItem('token', userInfo.token)
+            localStorage.setItem('userInfo', JSON.stringify({
+              id: userInfo.id,
+              username: userInfo.username
+            }))
+            
+            ElMessage.success('登录成功')
+            router.push('/lottery')
+          } else {
+            ElMessage.error('登录失败：未获取到用户信息')
+          }
         } else {
           ElMessage.error(response.message || '登录失败')
         }

@@ -25,6 +25,9 @@
     <modules>
         <module>user</module>
         <module>prize</module>
+        <module>prize-record-service</module>
+        <module>rabbitmq-service</module>
+        <module>gateway</module>
     </modules>
     <dependencyManagement>
         <dependencies>
