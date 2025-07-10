@@ -25,14 +25,24 @@ public class UserServiceLoginImpl implements UserServiceLogin {
     public User findByUserName(String username) {
         return userMapper.findByUserName(username);
     }
+    
+    @Override
+    public User findByPhone(String phone) {
+        return userMapper.findByPhone(phone);
+    }
+    
+    @Override
+    public User findByUsernameAndPhoneSuffix(String username, String phoneSuffix) {
+        return userMapper.findByUsernameAndPhoneSuffix(username, phoneSuffix);
+    }
 
     @Override
-    public User register(String username, String password) {
+    public User register(String username, String password, String phone) {
         // 对密码进行加密
         String encodedPassword = passwordEncoder.encode(password);
         
         // 使用mapper层进行数据库操作
-        int rows = userMapper.registerUser(username, encodedPassword);
+        int rows = userMapper.registerUser(username, encodedPassword, phone);
         
         if (rows == 1) {
             return User.success("注册成功");
@@ -65,5 +75,26 @@ public class UserServiceLoginImpl implements UserServiceLogin {
         userInfo.setToken(token);
         
         return User.success(userInfo);
+    }
+    
+    @Override
+    public User resetPassword(String username, String phoneSuffix, String newPassword) {
+        // 验证用户名和手机号后四位
+        User user = userMapper.findByUsernameAndPhoneSuffix(username, phoneSuffix);
+        if (user == null) {
+            return User.error("用户名或手机号后四位不正确");
+        }
+        
+        // 对新密码进行加密
+        String encodedPassword = passwordEncoder.encode(newPassword);
+        
+        // 更新密码
+        int rows = userMapper.updatePassword(user.getId(), encodedPassword);
+        
+        if (rows == 1) {
+            return User.success("密码重置成功");
+        } else {
+            return User.error("密码重置失败");
+        }
     }
 }

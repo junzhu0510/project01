@@ -54,17 +54,23 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
+
 import request from '@/utils/request'
 import { ElMessage } from 'element-plus'
+import { useUserStore } from '@/stores/user'
+import infinityBg from '@/assets/infinity-2289585.jpeg'
 
 const router = useRouter()
-const chances = ref(3) // 每天抽奖次数
+const userStore = useUserStore()
+const chances = ref(1) // 每天抽奖次数
 const isDrawing = ref(false)
 const currentIndex = ref(-1)
 const showPrizeDialog = ref(false)
 const currentPrize = ref(null)
+
+
 
 const prizes = [
   { id: 1, name: '一等奖', probability: 0.01, description: '获得iPhone 15 Pro Max一台' },
@@ -203,50 +209,210 @@ onMounted(() => {
 
 <style scoped>
 .lottery-container {
-  padding: 20px;
+  min-height: 100vh;
+  background: url('@/assets/infinity-2289585.jpeg') center/cover no-repeat;
+  padding: 100px 20px 40px;
+  position: relative;
+  overflow: hidden;
+}
+
+.lottery-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.2);
+  pointer-events: none;
+  z-index: 1;
+}
+
+@keyframes twinkle {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-100px); }
 }
 
 .lottery-card {
-  max-width: 800px;
+  max-width: 900px;
   margin: 0 auto;
+  background: rgba(0, 0, 0, 0.85);
+  border-radius: 24px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  border: none;
+  overflow: hidden;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.lottery-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
+}
+
+
+
+@keyframes rainbow {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
 }
 
 .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 30px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.1) 100%);
+  color: white;
+  margin: -20px -20px 30px -20px;
+}
+
+
+
+
+
+.card-header h3 {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0;
+  background: linear-gradient(135deg, #ffffff, #e0e0e0, #ffffff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+  animation: shimmer 3s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.2); }
+}
+
+.user-chances {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 12px 20px;
+  border-radius: 25px;
+  font-weight: 600;
+  font-size: 16px;
+  border: none;
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+.lottery-content {
+  padding: 0 30px 30px;
 }
 
 .prize-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin-bottom: 20px;
+  gap: 20px;
+  margin: 30px 0;
+  perspective: 1000px;
 }
 
 .prize-item {
-  height: 100px;
-  border: 1px solid #dcdfe6;
-  border-radius: 4px;
+  padding: 25px 15px;
+  text-align: center;
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.1) 100%);
+  color: white;
+  font-weight: 600;
+  font-size: 16px;
+  position: relative;
+  overflow: hidden;
+  transform-style: preserve-3d;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 16px;
-  transition: all 0.3s;
+  height: 100px;
+}
+
+.prize-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.prize-item:hover::before {
+  left: 100%;
+}
+
+.prize-item:nth-child(1) { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); }
+.prize-item:nth-child(2) { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); }
+.prize-item:nth-child(3) { background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); }
+.prize-item:nth-child(4) { background: linear-gradient(135deg, #ff8a80 0%, #ea4c89 100%); }
+.prize-item:nth-child(5) { background: linear-gradient(135deg, #8fd3f4 0%, #84fab0 100%); }
+.prize-item:nth-child(6) { background: linear-gradient(135deg, #d299c2 0%, #fef9d7 100%); }
+
+.prize-item:hover {
+  transform: translateY(-8px) rotateX(5deg);
+  box-shadow: 0 15px 35px rgba(255, 255, 255, 0.2);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
 }
 
 .prize-item.active {
-  background-color: #409eff;
-  color: white;
-  transform: scale(1.05);
+  transform: translateY(-12px) rotateX(10deg) scale(1.05);
+  box-shadow: 0 25px 50px rgba(255, 255, 255, 0.3), 0 0 30px rgba(255, 255, 255, 0.5);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.2) 100%);
+  color: #000000;
+  animation: infinityPulse 0.6s ease-in-out infinite alternate;
+}
+
+@keyframes infinityPulse {
+  0% { box-shadow: 0 25px 50px rgba(255, 255, 255, 0.3), 0 0 30px rgba(255, 255, 255, 0.5); }
+  100% { box-shadow: 0 25px 50px rgba(255, 255, 255, 0.4), 0 0 50px rgba(255, 255, 255, 0.8); }
 }
 
 .draw-button {
   width: 200px;
   height: 50px;
   font-size: 18px;
-  margin: 0 auto;
+  margin: 40px auto;
   display: block;
+  padding: 15px 40px;
+  font-weight: 700;
+  border-radius: 50px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.85) 100%);
+  border: none;
+  color: #000000;
+  box-shadow: 0 10px 30px rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.draw-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s;
+}
+
+.draw-button:hover::before {
+  left: 100%;
+}
+
+.draw-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 40px rgba(255, 255, 255, 0.3);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 0.9) 100%);
+}
+
+.draw-button:active {
+  transform: translateY(-1px);
 }
 
 .prize-dialog-content {
@@ -254,7 +420,49 @@ onMounted(() => {
 }
 
 .prize-dialog-content h2 {
-  color: #e6a23c;
+  color: #667eea;
   margin-bottom: 20px;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.prize-dialog-content p {
+  color: #666;
+  margin: 10px 0;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .lottery-container {
+    padding: 20px 10px;
+  }
+  
+  .prize-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+  }
+  
+  .prize-item {
+    padding: 20px 10px;
+    font-size: 14px;
+  }
+  
+  .card-header {
+    padding: 20px;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .card-header h3 {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .prize-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

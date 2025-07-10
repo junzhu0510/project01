@@ -20,13 +20,13 @@
       
       <div v-else>
         <el-table :data="prizeHistory" style="width: 100%" stripe>
-          <el-table-column prop="prizeName" label="奖品名称" width="200">
-            <template #default="scope">
-              <el-tag type="success">{{ scope.row.prizeName }}</el-tag>
-            </template>
-          </el-table-column>
-          
-          <el-table-column prop="prizeDescription" label="奖品描述" show-overflow-tooltip />
+          <el-table-column prop="prizeName" label="奖品名称" width="150">
+          <template #default="scope">
+            <el-tag type="success">{{ scope.row.prizeName }}</el-tag>
+          </template>
+        </el-table-column>
+        
+        <el-table-column prop="prizeDescription" label="奖品描述" width="250" show-overflow-tooltip />
           
           <el-table-column prop="winTime" label="中奖时间" width="180">
             <template #default="scope">
@@ -91,8 +91,9 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 import { ElMessage } from 'element-plus'
+
 import request from '@/utils/request'
 import { useUserStore } from '@/stores/user'
 
@@ -104,6 +105,8 @@ const pageSize = ref(10)
 const total = ref(0)
 const detailVisible = ref(false)
 const selectedPrize = ref(null)
+
+
 
 // 获取中奖历史
 const getPrizeHistory = async () => {
@@ -175,6 +178,8 @@ const getStatusType = (status) => {
   switch (status) {
     case 'PENDING': return 'warning'
     case 'DELIVERED': return 'success'
+    case 'PROCESSED': return 'success'
+    case 'CLAIMED': return 'success'
     case 'EXPIRED': return 'danger'
     default: return 'info'
   }
@@ -185,6 +190,8 @@ const getStatusText = (status) => {
   switch (status) {
     case 'PENDING': return '待发放'
     case 'DELIVERED': return '已发放'
+    case 'PROCESSED': return '已处理'
+    case 'CLAIMED': return '已领取'
     case 'EXPIRED': return '已过期'
     default: return '未知'
   }

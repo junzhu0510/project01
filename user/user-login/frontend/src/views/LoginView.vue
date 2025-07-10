@@ -1,25 +1,43 @@
 <template>
   <div class="login-container">
-    <el-card class="login-card">
-      <template #header>
-        <h2>登录</h2>
-      </template>
-      
-      <el-form :model="loginForm" :rules="rules" ref="loginFormRef" label-width="80px">
-        <el-form-item label="用户名" prop="username">
-          <el-input v-model="loginForm.username" placeholder="请输入用户名"></el-input>
-        </el-form-item>
+    <div class="login-card-wrapper">
+      <el-card class="login-card" :body-style="{ padding: '30px' }">
+        <template #header>
+          <h2 class="login-title">登录</h2>
+        </template>
         
-        <el-form-item label="密码" prop="password">
-          <el-input v-model="loginForm.password" type="password" placeholder="请输入密码" @keyup.enter="handleLogin"></el-input>
-        </el-form-item>
-        
-        <el-form-item>
-          <el-button type="primary" @click="handleLogin" :loading="loading">登录</el-button>
-          <el-button @click="goToRegister">注册账号</el-button>
-        </el-form-item>
-      </el-form>
-    </el-card>
+        <el-form :model="loginForm" :rules="rules" ref="loginFormRef" label-position="top" class="login-form">
+          <el-form-item label="用户名" prop="username">
+            <el-input 
+              v-model="loginForm.username" 
+              placeholder="请输入用户名"
+              class="custom-input"
+            ></el-input>
+          </el-form-item>
+          
+          <el-form-item label="密码" prop="password">
+            <el-input 
+              v-model="loginForm.password" 
+              type="password" 
+              placeholder="请输入密码" 
+              @keyup.enter="handleLogin"
+              show-password
+              class="custom-input"
+            ></el-input>
+          </el-form-item>
+          
+          <el-form-item>
+            <el-button type="primary" @click="handleLogin" :loading="loading" class="login-button">登录</el-button>
+          </el-form-item>
+
+          <div class="login-options">
+            <span class="forgot-password" @click="goToForgotPassword">忘记密码？</span>
+            <span class="dot-separator">•</span>
+            <span class="sign-up" @click="goToRegister">注册</span>
+          </div>
+        </el-form>
+      </el-card>
+    </div>
   </div>
 </template>
 
@@ -96,6 +114,10 @@ const handleLogin = async () => {
   })
 }
 
+const goToForgotPassword = () => {
+  router.push('/forgot-password')
+}
+
 const goToRegister = () => {
   router.push('/register')
 }
@@ -107,15 +129,101 @@ const goToRegister = () => {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #f5f7fa;
+  background-color: #f0f2f5;
+  background-image: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+}
+
+.login-card-wrapper {
+  width: 380px;
+  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.1));
 }
 
 .login-card {
-  width: 400px;
+  border-radius: 16px;
+  overflow: hidden;
+  background-color: white;
+  border: none;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.07);
 }
 
-.el-button {
+.login-card :deep(.el-card__header) {
+  padding: 25px 30px;
+  border-bottom: none;
+  text-align: center;
+}
+
+.login-title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 600;
+  color: #333;
+}
+
+.login-form {
+  margin-top: 10px;
+}
+
+.login-form :deep(.el-form-item__label) {
+  font-weight: 500;
+  color: #606266;
+  padding-bottom: 5px;
+}
+
+.custom-input :deep(.el-input__inner) {
+  height: 45px;
+  border-radius: 8px;
+  border: 1px solid #dcdfe6;
+  background-color: #f5f7fa;
+  transition: all 0.3s;
+  padding-left: 15px;
+}
+
+.custom-input :deep(.el-input__inner:focus) {
+  border-color: #6366f1;
+  background-color: white;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+}
+
+.login-button {
   width: 100%;
-  margin-bottom: 10px;
+  height: 45px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  background: #6366f1;
+  border: none;
+  margin-top: 10px;
+  transition: all 0.3s;
+}
+
+.login-button:hover {
+  background: #4f46e5;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.login-options {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  color: #6366f1;
+  font-size: 14px;
+}
+
+.forgot-password, .sign-up {
+  cursor: pointer;
+  transition: color 0.3s;
+}
+
+.forgot-password:hover, .sign-up:hover {
+  color: #4f46e5;
+  text-decoration: underline;
+}
+
+.dot-separator {
+  margin: 0 10px;
+  color: #d1d5db;
 }
 </style>

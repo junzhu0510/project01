@@ -13,6 +13,7 @@ public class User {
     private Integer id;
     private String username;
     private String password;
+    private String phone; // 添加手机号字段
     @Column("create_time")
     private LocalDateTime createTime;
     private String token; // JWT令牌
@@ -20,10 +21,11 @@ public class User {
     private String message;
     private Object data;
 
-    public User(Integer id, String username, String password, LocalDateTime createTime) {
+    public User(Integer id, String username, String password, String phone, LocalDateTime createTime) {
         this.id = id;
         this.username = username;
         this.password = password;
+        this.phone = phone;
         this.createTime = createTime;
     }
 

@@ -14,10 +14,28 @@ public interface UserMapper extends BaseMapper<User> {
      */
     @Select("SELECT * FROM user WHERE username = #{username}")
     User findByUserName(@Param("username") String username);
+    
+    /**
+     * 根据手机号查找用户
+     */
+    @Select("SELECT * FROM user WHERE phone = #{phone}")
+    User findByPhone(@Param("phone") String phone);
+    
+    /**
+     * 根据用户名和手机号后四位查找用户
+     */
+    @Select("SELECT * FROM user WHERE username = #{username} AND RIGHT(phone, 4) = #{phoneSuffix}")
+    User findByUsernameAndPhoneSuffix(@Param("username") String username, @Param("phoneSuffix") String phoneSuffix);
 
     /**
      * 注册新用户
      */
-    @Insert("INSERT INTO user (username, password, create_time) VALUES (#{username}, #{password}, NOW())")
-    int registerUser(@Param("username") String username, @Param("password") String password);
+    @Insert("INSERT INTO user (username, password, phone, create_time) VALUES (#{username}, #{password}, #{phone}, NOW())")
+    int registerUser(@Param("username") String username, @Param("password") String password, @Param("phone") String phone);
+    
+    /**
+     * 更新用户密码
+     */
+    @Insert("UPDATE user SET password = #{password} WHERE id = #{userId}")
+    int updatePassword(@Param("userId") Integer userId, @Param("password") String password);
 }
